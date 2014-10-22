@@ -54,7 +54,7 @@ def getRMSE(model, outfile, n=4):
         np.savez(f, l[i])
     return l
 
-if __name__ == "__main__":
+if __name__ == "_main__":
     #try: xtrain
     #except NameError: get_data()
     sup_vec = svm.SVR(C=10000.0, verbose = 2)
