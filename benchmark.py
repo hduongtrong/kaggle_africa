@@ -1,8 +1,10 @@
 import pandas as pd
 import numpy as np
 from sklearn import svm, cross_validation
-from sklearn.linear_model import LassoLarsCV
+from sklearn.linear_model import LassoLarsCV, LassoLarsIC
 from sys import stdout
+import time
+import random
 
 def get_data():
     global xtrain, xtest, ytrain, ytest, xout
@@ -24,7 +26,7 @@ def get_data():
 def runModel(model):
     rmse = np.zeros(5)
     for i in xrange(5):
-        rmse[i] = sqrt(mean((ytest[:,i] - model.fit(xtrain,\
+        rmse[i] = np.sqrt(np.mean((ytest[:,i] - model.fit(xtrain,\
                ytrain[:,i]).predict(xtest))**2))
         print rmse[i]
     return rmse
@@ -42,17 +44,20 @@ def getOutput(model):
     sample['Sand'] = preds[:,4]
     sample.to_csv('beating_benchmark2.csv', index = False)
 
-def getRMSE(model, n=10):
+def getRMSE(model, outfile, n=4):
     l = np.zeros(shape = (n,5))
+    f = open(outfile,"w")
     for i in xrange(n):
         get_data()
         stdout.write(str(i*100/n) + "%.."); stdout.flush()
         l[i] = (runModel(model))
+        np.savez(f, l[i])
     return l
 
 if __name__ == "__main__":
     #try: xtrain
     #except NameError: get_data()
-    sup_vec = svm.SVR(C=10000.0, verbose = 0)
-    las_cv = LassoLarsCV(fit_intercept = True, normalize = True, cv = 5)
-    l = getRMSE(las_cv)
+    sup_vec = svm.SVR(C=10000.0, verbose = 2)
+    las_ic = LassoLarsIC(criterion = "bic", fit_intercept = True, 
+                         normalize = True)
+    l = getRMSE(sup_vec, outfile = "xx.npz")
